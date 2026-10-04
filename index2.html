@@ -1,0 +1,2248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Titan Industrial Rentals - Fleet Management</title>
+  <style>
+    /* ========================================================================
+       DESIGN TOKENS & COLOR PALETTE
+       ======================================================================== */
+    :root {
+      --color-primary: #0066cc;
+      --color-primary-dark: #0052a3;
+      --color-primary-light: #e6f0ff;
+      --color-success: #0f9d58;
+      --color-success-light: #e8f5e9;
+      --color-warning: #f9ab00;
+      --color-warning-light: #fff8e1;
+      --color-error: #d32f2f;
+      --color-error-light: #ffebee;
+      --color-info: #1976d2;
+      --color-info-light: #e3f2fd;
+      
+      --color-text-primary: #202124;
+      --color-text-secondary: #5f6368;
+      --color-text-tertiary: #9aa0a6;
+      --color-text-inverse: #ffffff;
+      
+      --color-bg-primary: #ffffff;
+      --color-bg-secondary: #f8f9fa;
+      --color-bg-tertiary: #f0f2f5;
+      
+      --color-border: #dadce0;
+      --color-divider: #e8e8e8;
+      
+      --color-status-available: #0f9d58;
+      --color-status-rented: #1f73e6;
+      --color-status-hold: #f9ab00;
+      --color-status-maintenance: #ea4335;
+      --color-status-overdue: #d32f2f;
+      
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 24px;
+      --spacing-2xl: 32px;
+      
+      --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-size-xs: 12px;
+      --font-size-sm: 13px;
+      --font-size-base: 14px;
+      --font-size-lg: 16px;
+      --font-size-xl: 18px;
+      --font-size-2xl: 20px;
+      --font-size-3xl: 24px;
+      --font-size-4xl: 32px;
+      
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      
+      --line-height-tight: 1.2;
+      --line-height-normal: 1.5;
+      --line-height-relaxed: 1.75;
+      
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.10);
+      
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ========================================================================
+       GLOBAL STYLES
+       ======================================================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+    }
+
+    body {
+      font-family: var(--font-family-sans);
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-normal);
+      color: var(--color-text-primary);
+      background-color: var(--color-bg-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ========================================================================
+       LAYOUT STRUCTURE
+       ======================================================================== */
+    .layout {
+      display: grid;
+      grid-template-columns: 276px 1fr;
+      grid-template-rows: 64px 1fr;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    .sidebar {
+      grid-column: 1;
+      grid-row: 1 / -1;
+      background-color: var(--color-bg-primary);
+      border-right: 1px solid var(--color-border);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .header {
+      grid-column: 2;
+      grid-row: 1;
+      background-color: var(--color-bg-primary);
+      border-bottom: 1px solid var(--color-border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--spacing-lg);
+    }
+
+    .main-content {
+      grid-column: 2;
+      grid-row: 2;
+      overflow-y: auto;
+      background-color: var(--color-bg-secondary);
+    }
+
+    /* ========================================================================
+       SIDEBAR
+       ======================================================================== */
+    .sidebar-header {
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--color-border);
+      background-color: var(--color-bg-primary);
+    }
+
+    .sidebar-logo-container {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .sidebar-logo {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary);
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .sidebar-title-label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .sidebar-title {
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      line-height: var(--line-height-tight);
+    }
+
+    .sidebar-menu {
+      padding: var(--spacing-lg) 0;
+      list-style: none;
+    }
+
+    .sidebar-menu-item {
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar-menu-link {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) var(--spacing-lg);
+      color: var(--color-text-secondary);
+      text-decoration: none;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+
+    .sidebar-menu-link:hover {
+      background-color: var(--color-bg-secondary);
+      color: var(--color-primary);
+    }
+
+    .sidebar-menu-link.active {
+      background-color: var(--color-primary-light);
+      color: var(--color-primary);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .menu-icon {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      border-top: 1px solid var(--color-border);
+      background-color: var(--color-bg-primary);
+      padding: var(--spacing-lg);
+    }
+
+    .depot-info {
+      padding: var(--spacing-md);
+      background-color: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .depot-info-label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .depot-info-status {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--color-status-available);
+    }
+
+    .depot-info-hours {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      background-color: var(--color-bg-secondary);
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-bold);
+      flex-shrink: 0;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-logout {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      color: var(--color-text-tertiary);
+      transition: color var(--transition-fast);
+    }
+
+    .user-logout:hover {
+      color: var(--color-text-secondary);
+    }
+
+    /* ========================================================================
+       HEADER
+       ======================================================================== */
+    .search-box {
+      flex: 1;
+      max-width: 600px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      font-size: var(--font-size-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      transition: all var(--transition-fast);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    }
+
+    .search-input::placeholder {
+      color: var(--color-text-tertiary);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--color-text-tertiary);
+      pointer-events: none;
+    }
+
+    .header-buttons {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+    }
+
+    .header-button-group {
+      display: flex;
+      gap: var(--spacing-sm);
+    }
+
+    .header-button {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 8px 16px;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .header-button:hover {
+      background-color: var(--color-bg-secondary);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .header-button-primary {
+      background-color: var(--color-primary);
+      color: white;
+      border-color: var(--color-primary);
+    }
+
+    .header-button-primary:hover {
+      background-color: var(--color-primary-dark);
+      border-color: var(--color-primary-dark);
+    }
+
+    .notification-badge {
+      position: relative;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-secondary);
+      transition: color var(--transition-fast);
+    }
+
+    .notification-badge:hover {
+      color: var(--color-primary);
+    }
+
+    .badge-dot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-error);
+      border-radius: 50%;
+      top: 2px;
+      right: 2px;
+      font-size: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+
+    /* ========================================================================
+       MAIN CONTENT AREA
+       ======================================================================== */
+    .content-wrapper {
+      padding: var(--spacing-2xl);
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ========================================================================
+       OPERATIONAL STATUS BANNER
+       ======================================================================== */
+    .status-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+      border: 1px solid #c8e6c9;
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .status-banner-left {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      flex: 1;
+    }
+
+    .status-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: rgba(15, 157, 88, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-status-available);
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .status-content {
+      flex: 1;
+    }
+
+    .status-title {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: 4px;
+    }
+
+    .status-subtitle {
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-normal);
+      color: var(--color-text-secondary);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      background-color: rgba(15, 157, 88, 0.1);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-status-available);
+      margin-left: var(--spacing-md);
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-status-available);
+      border-radius: 50%;
+    }
+
+    .status-banner-right {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+    }
+
+    .status-time {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .status-time-label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+    }
+
+    .status-time-value {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    /* ========================================================================
+       HEADER CONTEXT BLOCK
+       ======================================================================== */
+    .header-context {
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .header-context-title {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .header-context-heading {
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-md);
+      line-height: var(--line-height-tight);
+    }
+
+    .header-context-description {
+      font-size: var(--font-size-base);
+      line-height: var(--line-height-normal);
+      color: var(--color-text-secondary);
+    }
+
+    .header-context-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-md);
+      padding: 8px 12px;
+      background-color: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      width: fit-content;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .meta-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-status-available);
+      border-radius: 50%;
+    }
+
+    /* ========================================================================
+       KPI METRIC TILES
+       ======================================================================== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .kpi-card {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      transition: all var(--transition-normal);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .kpi-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .kpi-card-label {
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-card-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--color-text-tertiary);
+    }
+
+    .kpi-card-value {
+      font-size: var(--font-size-4xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-md);
+      line-height: 1;
+    }
+
+    .kpi-card-description {
+      font-size: var(--font-size-xs);
+      line-height: var(--line-height-normal);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .kpi-card-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+      padding-top: var(--spacing-md);
+      border-top: 1px solid var(--color-divider);
+    }
+
+    .kpi-meta-value {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .kpi-card-progress {
+      width: 100%;
+      height: 4px;
+      background-color: var(--color-bg-tertiary);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .kpi-card-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-info));
+      border-radius: 2px;
+      width: 46%;
+    }
+
+    /* ========================================================================
+       OPERATIONAL PANELS
+       ======================================================================== */
+    .operations-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .operations-panel {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .operations-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-lg);
+      border-bottom: 1px solid var(--color-divider);
+      background-color: var(--color-bg-primary);
+    }
+
+    .operations-panel-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .operations-panel-icon {
+      width: 24px;
+      height: 24px;
+      color: var(--color-primary);
+    }
+
+    .operations-panel-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background-color: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+    }
+
+    .operations-panel-description {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .operations-panel-body {
+      padding: var(--spacing-lg);
+      overflow-x: auto;
+    }
+
+    /* ========================================================================
+       TABLES
+       ======================================================================== */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: var(--font-size-sm);
+    }
+
+    .data-table thead {
+      background-color: var(--color-bg-secondary);
+      border-bottom: 1px solid var(--color-divider);
+    }
+
+    .data-table th {
+      padding: 12px;
+      text-align: left;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .data-table tbody tr {
+      border-bottom: 1px solid var(--color-divider);
+      transition: background-color var(--transition-fast);
+    }
+
+    .data-table tbody tr:hover {
+      background-color: var(--color-bg-secondary);
+    }
+
+    .data-table td {
+      padding: 16px 12px;
+      color: var(--color-text-primary);
+    }
+
+    .table-item-name {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+      margin-bottom: 4px;
+    }
+
+    .table-item-meta {
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .table-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      white-space: nowrap;
+    }
+
+    .status-available {
+      background-color: rgba(15, 157, 88, 0.1);
+      color: var(--color-status-available);
+    }
+
+    .status-rented {
+      background-color: rgba(31, 115, 230, 0.1);
+      color: var(--color-status-rented);
+    }
+
+    .status-hold {
+      background-color: rgba(249, 171, 0, 0.1);
+      color: var(--color-status-hold);
+    }
+
+    .status-maintenance {
+      background-color: rgba(234, 67, 53, 0.1);
+      color: var(--color-status-maintenance);
+    }
+
+    .status-overdue {
+      background-color: rgba(211, 47, 47, 0.1);
+      color: var(--color-status-overdue);
+    }
+
+    .table-action-button {
+      padding: 6px 12px;
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-primary);
+      color: var(--color-primary);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .table-action-button:hover {
+      background-color: var(--color-primary-light);
+      border-color: var(--color-primary);
+    }
+
+    /* ========================================================================
+       ALERT SECTIONS
+       ======================================================================== */
+    .alert-section {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--spacing-2xl);
+      overflow: hidden;
+    }
+
+    .alert-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-lg);
+      background: linear-gradient(90deg, #ffebee 0%, #fff5f5 100%);
+      border-bottom: 1px solid #ffcdd2;
+    }
+
+    .alert-section-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-error);
+    }
+
+    .alert-icon {
+      width: 16px;
+      height: 16px;
+      color: var(--color-error);
+      flex-shrink: 0;
+    }
+
+    .alert-section-body {
+      padding: var(--spacing-lg);
+    }
+
+    .overdue-card {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-lg);
+      background-color: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border);
+    }
+
+    .overdue-image {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+      border-radius: var(--radius-md);
+      flex-shrink: 0;
+    }
+
+    .overdue-content {
+      flex: 1;
+    }
+
+    .overdue-header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .overdue-id {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 24px;
+      background-color: var(--color-bg-primary);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+    }
+
+    .overdue-name {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .overdue-status {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 4px 8px;
+      background-color: rgba(211, 47, 47, 0.1);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-status-overdue);
+      margin-left: var(--spacing-md);
+    }
+
+    .overdue-details {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    .overdue-detail-row {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+    }
+
+    .overdue-detail-label {
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+    }
+
+    .overdue-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .action-button {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xs);
+      padding: 12px 16px;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .action-button:hover {
+      border-color: var(--color-primary);
+      background-color: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    /* ========================================================================
+       ASSET STRIP
+       ======================================================================== */
+    .asset-strip {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .asset-strip-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .asset-strip-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .asset-strip-link {
+      font-size: var(--font-size-sm);
+      color: var(--color-primary);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color var(--transition-fast);
+    }
+
+    .asset-strip-link:hover {
+      color: var(--color-primary-dark);
+    }
+
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--spacing-lg);
+    }
+
+    .asset-item {
+      position: relative;
+      height: 140px;
+      background: linear-gradient(135deg, #d0d0d0 0%, #e8e8e8 100%);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform var(--transition-normal);
+    }
+
+    .asset-item:hover {
+      transform: translateY(-4px);
+    }
+
+    .asset-item-footer {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: var(--spacing-md);
+      background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+    }
+
+    .asset-item-name {
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .asset-item-meta {
+      font-size: var(--font-size-xs);
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    /* ========================================================================
+       ALERT CARDS GRID
+       ======================================================================== */
+    .alert-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-lg);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .alert-card {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      transition: all var(--transition-normal);
+    }
+
+    .alert-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .alert-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .alert-card-title {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-primary);
+    }
+
+    .alert-card-icon-wrapper {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .alert-card-meta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px;
+      height: 24px;
+      background-color: var(--color-bg-secondary);
+      border-radius: var(--radius-sm);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-text-secondary);
+    }
+
+    .alert-card-description {
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-normal);
+      color: var(--color-text-secondary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .alert-card-list {
+      background-color: var(--color-bg-secondary);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-md);
+      list-style: none;
+    }
+
+    .alert-card-list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-xs) 0;
+      font-size: var(--font-size-xs);
+      color: var(--color-text-secondary);
+    }
+
+    .alert-card-list-item:not(:last-child) {
+      border-bottom: 1px solid var(--color-divider);
+      padding-bottom: var(--spacing-xs);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .alert-card-link {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding-top: var(--spacing-md);
+      border-top: 1px solid var(--color-divider);
+      color: var(--color-primary);
+      text-decoration: none;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      transition: color var(--transition-fast);
+    }
+
+    .alert-card-link:hover {
+      color: var(--color-primary-dark);
+    }
+
+    /* ========================================================================
+       FORM SECTION
+       ======================================================================== */
+    .form-section {
+      background-color: var(--color-bg-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-2xl);
+      margin-bottom: var(--spacing-2xl);
+      max-width: 500px;
+    }
+
+    .form-header {
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    .form-title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .form-description {
+      font-size: var(--font-size-sm);
+      line-height: var(--line-height-normal);
+      color: var(--color-text-secondary);
+    }
+
+    .form-group {
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .form-label {
+      display: block;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-text-primary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: var(--font-size-base);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      background-color: var(--color-bg-primary);
+      color: var(--color-text-primary);
+      transition: all var(--transition-fast);
+      font-family: var(--font-family-sans);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: var(--color-text-tertiary);
+    }
+
+    .form-input.error {
+      border-color: var(--color-error);
+      background-color: rgba(211, 47, 47, 0.02);
+    }
+
+    .form-error {
+      font-size: var(--font-size-xs);
+      color: var(--color-error);
+      margin-top: 4px;
+      display: none;
+    }
+
+    .form-error.show {
+      display: block;
+    }
+
+    .form-submit-button {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
+      background-color: var(--color-primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-normal);
+      margin-top: var(--spacing-lg);
+    }
+
+    .form-submit-button:hover:not(:disabled) {
+      background-color: var(--color-primary-dark);
+      box-shadow: var(--shadow-md);
+    }
+
+    .form-submit-button:disabled {
+      background-color: var(--color-text-tertiary);
+      cursor: not-allowed;
+    }
+
+    .form-message {
+      padding: var(--spacing-md);
+      border-radius: var(--radius-md);
+      font-size: var(--font-size-sm);
+      margin-bottom: var(--spacing-lg);
+      display: none;
+      animation: slideIn var(--transition-normal);
+    }
+
+    .form-message.show {
+      display: block;
+    }
+
+    .form-message.success {
+      background-color: var(--color-success-light);
+      border: 1px solid var(--color-status-available);
+      color: var(--color-status-available);
+    }
+
+    .form-message.error {
+      background-color: var(--color-error-light);
+      border: 1px solid var(--color-error);
+      color: var(--color-error);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ========================================================================
+       RESPONSIVE DESIGN
+       ======================================================================== */
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .header {
+        grid-column: 1;
+      }
+
+      .main-content {
+        grid-column: 1;
+      }
+
+      .operations-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+
+      .asset-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .content-wrapper {
+        padding: var(--spacing-lg);
+      }
+
+      .header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
+      }
+
+      .search-box {
+        width: 100%;
+        max-width: none;
+      }
+
+      .header-buttons {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      .header-button-group {
+        flex-wrap: wrap;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .data-table {
+        font-size: 12px;
+      }
+
+      .data-table th,
+      .data-table td {
+        padding: 8px;
+      }
+
+      .alert-cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-context-heading {
+        font-size: var(--font-size-2xl);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .layout {
+        grid-template-rows: auto 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .data-table {
+        font-size: 11px;
+      }
+
+      .operations-panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .form-section {
+        padding: var(--spacing-lg);
+      }
+
+      .overdue-card {
+        grid-template-columns: 1fr;
+      }
+
+      .overdue-actions {
+        flex-direction: row;
+      }
+
+      .action-button {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo-container">
+          <div class="sidebar-logo">TIR</div>
+          <div class="sidebar-title-group">
+            <div class="sidebar-title-label">Portal</div>
+            <div class="sidebar-title">Dispatch</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link active" href="#dashboard">
+            <span class="menu-icon">📊</span>
+            Dashboard
+          </a>
+        </li>
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link" href="#fleet">
+            <span class="menu-icon">🚜</span>
+            Fleet Assets
+          </a>
+        </li>
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link" href="#bookings">
+            <span class="menu-icon">📅</span>
+            Bookings
+          </a>
+        </li>
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link" href="#dispatch">
+            <span class="menu-icon">🚚</span>
+            Dispatch
+          </a>
+        </li>
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link" href="#returns">
+            <span class="menu-icon">↩️</span>
+            Returns & Inspections
+          </a>
+        </li>
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link" href="#maintenance">
+            <span class="menu-icon">🔧</span>
+            Maintenance
+          </a>
+        </li>
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link" href="#invoices">
+            <span class="menu-icon">📄</span>
+            Invoices
+          </a>
+        </li>
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link" href="#clients">
+            <span class="menu-icon">👥</span>
+            Clients
+          </a>
+        </li>
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link" href="#quotes">
+            <span class="menu-icon">💰</span>
+            Quotes
+          </a>
+        </li>
+        <li class="sidebar-menu-item">
+          <a class="sidebar-menu-link" href="#reports">
+            <span class="menu-icon">📈</span>
+            Reports
+          </a>
+        </li>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="depot-info">
+          <div class="depot-info-label">Facility Status</div>
+          <div class="depot-info-status">
+            <span class="status-dot"></span>
+            Operational
+          </div>
+          <div class="depot-info-hours">Denver Depot · 7:00 AM - 5:00 PM</div>
+        </div>
+
+        <div class="user-card">
+          <div class="user-avatar">JD</div>
+          <div class="user-info">
+            <div class="user-name">John Dealer</div>
+            <div class="user-role">Dispatcher</div>
+          </div>
+          <div class="user-logout">🚪</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Search Asset ID, Client, Booking or Quote...">
+      </div>
+
+      <div class="header-buttons">
+        <div class="header-button-group">
+          <button class="header-button">
+            <span>+ Booking</span>
+          </button>
+          <button class="header-button header-button-primary">
+            <span>+ Dispatch</span>
+          </button>
+        </div>
+
+        <div class="notification-badge">
+          🔔
+          <div class="badge-dot">3</div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: var(--spacing-lg); border-left: 1px solid var(--color-border); padding-left: var(--spacing-lg);">
+          <div style="text-align: right;">
+            <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary);">Operations</div>
+            <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">Manager</div>
+          </div>
+          <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #1f73e6 0%, #0052a3 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">OM</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="content-wrapper">
+        <!-- OPERATIONAL STATUS BANNER -->
+        <div class="status-banner">
+          <div class="status-banner-left">
+            <div class="status-icon">✓</div>
+            <div class="status-content">
+              <div class="status-title">All Systems Operational</div>
+              <div class="status-subtitle">
+                Yard gates open. All equipment accessible.
+                <span class="status-badge">READY</span>
+              </div>
+            </div>
+          </div>
+          <div class="status-banner-right">
+            <div class="status-time">
+              <div class="status-time-label">Current Time</div>
+              <div class="status-time-value" id="current-time">09:45 AM</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HEADER CONTEXT BLOCK -->
+        <div class="header-context">
+          <div class="header-context-title">Good morning</div>
+          <div class="header-context-heading">Fleet Operations Dashboard</div>
+          <div class="header-context-description">
+            Real-time view of equipment status, rental dispatch, and operational alerts across all Titan facilities.
+          </div>
+          <div class="header-context-meta">
+            <span class="meta-item">
+              <span class="meta-dot"></span>
+              Live Data
+            </span>
+            <span class="meta-item">
+              <span class="meta-dot"></span>
+              All Facilities
+            </span>
+          </div>
+        </div>
+
+        <!-- KPI METRIC TILES -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <div class="kpi-card-label">Total Fleet</div>
+              <div class="kpi-card-icon">📦</div>
+            </div>
+            <div class="kpi-card-value">42</div>
+            <div class="kpi-card-description">All registered equipment assets</div>
+            <div class="kpi-card-meta">
+              <span><span class="kpi-meta-value">24</span> Active</span>
+              <span><span class="kpi-meta-value">18</span> Dormant</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <div class="kpi-card-label">Available</div>
+              <div class="kpi-card-icon">✅</div>
+            </div>
+            <div class="kpi-card-value">18</div>
+            <div class="kpi-card-description">Ready for rental / dispatch</div>
+            <div class="kpi-card-meta">
+              <span>📍 <span class="kpi-meta-value">Immediate</span></span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <div class="kpi-card-label">Rented</div>
+              <div class="kpi-card-icon">🏗️</div>
+            </div>
+            <div class="kpi-card-value">17</div>
+            <div class="kpi-card-description">Generating revenue on site</div>
+            <div class="kpi-card-meta">
+              <span>💵 <span class="kpi-meta-value">Billable</span></span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <div class="kpi-card-label">In Maintenance</div>
+              <div class="kpi-card-icon">🔧</div>
+            </div>
+            <div class="kpi-card-value">5</div>
+            <div class="kpi-card-description">Threshold & repair locks</div>
+            <div class="kpi-card-meta">
+              <span>⏱️ <span class="kpi-meta-value">In Queue</span></span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-card-header">
+              <div class="kpi-card-label">Fleet Utilization</div>
+              <div class="kpi-card-icon">📊</div>
+            </div>
+            <div class="kpi-card-progress">
+              <div class="kpi-card-progress-bar"></div>
+            </div>
+            <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin-bottom: var(--spacing-sm);">46%</div>
+            <div class="kpi-card-description">Rented (17) / [Total (42) - Maint (5)] = 46.0%. Decomm/Maint excluded.</div>
+          </div>
+        </div>
+
+        <!-- OPERATIONAL PANELS -->
+        <div class="operations-grid">
+          <!-- Today's Dispatches -->
+          <div class="operations-panel">
+            <div class="operations-panel-header">
+              <div class="operations-panel-title">
+                <span class="operations-panel-icon">🚚</span>
+                Today's Dispatches
+              </div>
+              <div class="operations-panel-count">4</div>
+            </div>
+            <div style="padding: var(--spacing-lg); border-bottom: 1px solid var(--color-divider);">
+              <div class="operations-panel-description">Equipment scheduled to leave the yard today (Yard gates open 7:00 AM - 5:00 PM).</div>
+            </div>
+            <div class="operations-panel-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Equipment</th>
+                    <th>Client</th>
+                    <th>Time</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>01</td>
+                    <td>
+                      <div class="table-item-name">CAT Excavator 320</div>
+                      <div class="table-item-meta">Serial: EXC-4521</div>
+                      <div class="table-item-meta">Year: 2022</div>
+                    </td>
+                    <td>Acme Construction</td>
+                    <td>08:30 AM</td>
+                    <td><span class="table-status-badge status-available">Ready</span></td>
+                    <td><button class="table-action-button">Confirm</button></td>
+                  </tr>
+                  <tr>
+                    <td>02</td>
+                    <td>
+                      <div class="table-item-name">Cummins Generator 100kVA</div>
+                      <div class="table-item-meta">Serial: GEN-2891</div>
+                      <div class="table-item-meta">Output: 100kVA</div>
+                    </td>
+                    <td>Summit Power</td>
+                    <td>10:15 AM</td>
+                    <td><span class="table-status-badge status-hold">On Hold</span></td>
+                    <td><button class="table-action-button">Release</button></td>
+                  </tr>
+                  <tr>
+                    <td>03</td>
+                    <td>
+                      <div class="table-item-name">Bobcat Loader S770</div>
+                      <div class="table-item-meta">Serial: LOD-7734</div>
+                      <div class="table-item-meta">Capacity: 2,300 lbs</div>
+                    </td>
+                    <td>Green Valley Dev</td>
+                    <td>01:45 PM</td>
+                    <td><span class="table-status-badge status-available">Ready</span></td>
+                    <td><button class="table-action-button">Dispatch</button></td>
+                  </tr>
+                  <tr>
+                    <td>04</td>
+                    <td>
+                      <div class="table-item-name">CAT Excavator 320</div>
+                      <div class="table-item-meta">Serial: EXC-4521</div>
+                      <div class="table-item-meta">Year: 2022</div>
+                    </td>
+                    <td>Metro Partners</td>
+                    <td>03:00 PM</td>
+                    <td><span class="table-status-badge status-available">Ready</span></td>
+                    <td><button class="table-action-button">Dispatch</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="padding: var(--spacing-lg); border-top: 1px solid var(--color-divider); display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">4 items scheduled today</div>
+              <a href="#" class="alert-card-link">View All Dispatches →</a>
+            </div>
+          </div>
+
+          <!-- Today's Returns & Inspections -->
+          <div class="operations-panel">
+            <div class="operations-panel-header">
+              <div class="operations-panel-title">
+                <span class="operations-panel-icon">↩️</span>
+                Today's Returns & Inspections
+              </div>
+              <div class="operations-panel-count">3</div>
+            </div>
+            <div style="padding: var(--spacing-lg); border-bottom: 1px solid var(--color-divider);">
+              <div class="operations-panel-description">Equipment scheduled to return by 5:00 PM. Triggers 24h inspection buffer.</div>
+            </div>
+            <div class="operations-panel-body">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Equipment</th>
+                    <th>Client</th>
+                    <th>Return Due</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>01</td>
+                    <td>
+                      <div class="table-item-name">Komatsu Excavator PC210</div>
+                      <div class="table-item-meta">Serial: KOM-5591</div>
+                      <div class="table-item-meta">Year: 2021</div>
+                    </td>
+                    <td>BuildRight Corp</td>
+                    <td>02:30 PM</td>
+                    <td><span class="table-status-badge status-overdue">Overdue</span></td>
+                    <td><button class="table-action-button">Follow Up</button></td>
+                  </tr>
+                  <tr>
+                    <td>02</td>
+                    <td>
+                      <div class="table-item-name">Cat Generator 150kVA</div>
+                      <div class="table-item-meta">Serial: GEN-8821</div>
+                      <div class="table-item-meta">Output: 150kVA</div>
+                    </td>
+                    <td>ElectroServe</td>
+                    <td>04:00 PM</td>
+                    <td><span class="table-status-badge status-rented">On Site</span></td>
+                    <td><button class="table-action-button">Schedule</button></td>
+                  </tr>
+                  <tr>
+                    <td>03</td>
+                    <td>
+                      <div class="table-item-name">Kubota Mini Excavator KX161-3</div>
+                      <div class="table-item-meta">Serial: KUB-4402</div>
+                      <div class="table-item-meta">Year: 2023</div>
+                    </td>
+                    <td>Precision Landscaping</td>
+                    <td>04:45 PM</td>
+                    <td><span class="table-status-badge status-available">Expected</span></td>
+                    <td><button class="table-action-button">Schedule</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="padding: var(--spacing-lg); border-top: 1px solid var(--color-divider); display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary);">3 items scheduled to return today</div>
+              <a href="#" class="alert-card-link">View All Returns →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- HIGH-PRIORITY WARNING SECTION -->
+        <div class="alert-section">
+          <div class="alert-section-header">
+            <div class="alert-section-title">
+              <span class="alert-icon">⚠️</span>
+              High-Priority: Overdue Rentals
+            </div>
+            <div style="font-size: var(--font-size-sm); color: var(--color-error); font-weight: var(--font-weight-medium);">1 critical item requires immediate action</div>
+          </div>
+          <div class="alert-section-body">
+            <div style="margin-bottom: var(--spacing-lg);">
+              <div style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: var(--spacing-md);">
+                Overdue Asset <span class="status-badge" style="background-color: rgba(211, 47, 47, 0.1); color: var(--color-status-overdue);">1 ITEM</span>
+              </div>
+              <div style="font-size: var(--font-size-sm); line-height: var(--line-height-normal); color: var(--color-text-secondary); margin-bottom: var(--spacing-lg);">
+                Asset is beyond contracted return date. Initiate contact protocol.
+              </div>
+              <div style="display: flex; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                <div style="display: flex; gap: var(--spacing-lg);">
+                  <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #d0d0d0 0%, #e8e8e8 100%); border-radius: var(--radius-md);"></div>
+                  <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: var(--spacing-md); margin-bottom: var(--spacing-md);">
+                      <div style="display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 24px; background-color: var(--color-bg-secondary); border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-text-secondary);">REN-0821</div>
+                      <div style="font-size: var(--font-size-base); font-weight: var(--font-weight-semibold); color: var(--color-text-primary);">Komatsu Excavator PC220</div>
+                      <div style="display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: 4px 8px; background-color: rgba(211, 47, 47, 0.1); border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-status-overdue);">🔴 OVERDUE</div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+                      <div style="display: flex; align-items: center; gap: var(--spacing-md); font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                        <span style="display: inline-flex; align-items: center; gap: 4px;"><strong>Due Date:</strong></span>
+                        <span>Yesterday · 5:00 PM</span>
+                      </div>
+                      <div style="display: flex; align-items: center; gap: var(--spacing-md); font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                        <span style="display: inline-flex; align-items: center; gap: 4px;"><strong>Client Contact:</strong></span>
+                        <span>Mike Thompson · (720) 555-0199</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: var(--spacing-md);">
+              <button class="action-button">📞 Call Client</button>
+              <button class="action-button">📧 Send Notice</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FLEET ASSET SAMPLES / YARD PHOTOMETRY STRIP -->
+        <div class="asset-strip">
+          <div class="asset-strip-header">
+            <div class="asset-strip-title">
+              <span>🖼️</span>
+              Fleet Asset Samples / Yard Imagery
+            </div>
+            <a href="#" class="asset-strip-link">View Full Gallery →</a>
+          </div>
+          <div class="asset-grid">
+            <div class="asset-item">
+              <div class="asset-item-footer">
+                <div class="asset-item-name">CAT Excavator Fleet</div>
+                <div class="asset-item-meta">Total: 4 units · Location: Yard A</div>
+              </div>
+            </div>
+            <div class="asset-item">
+              <div class="asset-item-footer">
+                <div class="asset-item-name">Generator Bank - 50kVA to 500kVA</div>
+                <div class="asset-item-meta">Total: 8 units · Location: Yard B</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- BOTTOM OPERATIONAL ALERTS & SUMMARY -->
+        <div class="alert-cards-grid">
+          <!-- Alert 1: Maintenance Due -->
+          <div class="alert-card">
+            <div class="alert-card-header">
+              <div class="alert-card-title">
+                <div class="alert-card-icon-wrapper" style="color: var(--color-warning);">🔧</div>
+                Maintenance Due
+              </div>
+              <div class="alert-card-meta">3</div>
+            </div>
+            <div class="alert-card-description">3 assets have reached operational inspection thresholds:</div>
+            <div class="alert-card-list">
+              <div class="alert-card-list-item">
+                <span>CAT 320 (Serial: EXC-4521)</span>
+                <span style="color: var(--color-text-tertiary);">750 hrs</span>
+              </div>
+              <div class="alert-card-list-item">
+                <span>Cummins Generator 100kVA</span>
+                <span style="color: var(--color-text-tertiary);">620 hrs</span>
+              </div>
+              <div class="alert-card-list-item">
+                <span>Kubota Mini Excavator KX161</span>
+                <span style="color: var(--color-text-tertiary);">480 hrs</span>
+              </div>
+            </div>
+            <a href="#" class="alert-card-link">📋 View Maintenance Schedule →</a>
+          </div>
+
+          <!-- Alert 2: Active Booking Holds -->
+          <div class="alert-card">
+            <div class="alert-card-header">
+              <div class="alert-card-title">
+                <div class="alert-card-icon-wrapper" style="color: var(--color-info);">📌</div>
+                Active Booking Holds
+              </div>
+              <div class="alert-card-meta">2</div>
+            </div>
+            <div class="alert-card-description">2 assets held on temporary 15-minute checkout timers:</div>
+            <div class="alert-card-list">
+              <div style="padding: var(--spacing-sm) 0;">
+                <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); margin-bottom: 4px;">Bobcat Loader S770</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">Held by: Sarah Chen</div>
+                  <div style="display: inline-flex; align-items: center; justify-content: center; width: 55px; height: 22px; background-color: rgba(249, 171, 0, 0.1); border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-status-hold);">9m left</div>
+                </div>
+              </div>
+              <div style="border-top: 1px solid var(--color-divider); padding: var(--spacing-sm) 0; margin-top: var(--spacing-sm);">
+                <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text-primary); margin-bottom: 4px;">CAT Mini Excavator 308</div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">Held by: David Martinez</div>
+                  <div style="display: inline-flex; align-items: center; justify-content: center; width: 55px; height: 22px; background-color: rgba(249, 171, 0, 0.1); border-radius: var(--radius-sm); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); color: var(--color-status-hold);">4m left</div>
+                </div>
+              </div>
+            </div>
+            <a href="#" class="alert-card-link">⏰ View All Holds →</a>
+          </div>
+
+          <!-- Alert 3: System Audit Log -->
+          <div class="alert-card">
+            <div class="alert-card-header">
+              <div class="alert-card-title">
+                <div class="alert-card-icon-wrapper" style="color: var(--color-success);">📊</div>
+                System Audit Log
+              </div>
+              <div class="alert-card-meta">3</div>
+            </div>
+            <div class="alert-card-description">Recent operational handoffs & buffer clearings recorded today:</div>
+            <div class="alert-card-list">
+              <div class="alert-card-list-item">
+                <span>Bobcat S770 returned to yard</span>
+                <span style="color: var(--color-text-tertiary);">07:45 AM</span>
+              </div>
+              <div class="alert-card-list-item">
+                <span>Generator bank full inspection completed</span>
+                <span style="color: var(--color-text-tertiary);">08:30 AM</span>
+              </div>
+              <div class="alert-card-list-item">
+                <span>Komatsu PC210 dispatched to site</span>
+                <span style="color: var(--color-text-tertiary);">09:15 AM</span>
+              </div>
+            </div>
+            <a href="#" class="alert-card-link">📝 View Full Audit Trail →</a>
+          </div>
+        </div>
+
+        <!-- FORM SECTION -->
+        <div class="form-section">
+          <div class="form-header">
+            <h2 class="form-title">Contact Sales</h2>
+            <p class="form-description">Interested in our equipment rental services? Let us know how we can help.</p>
+          </div>
+
+          <div id="form-message" class="form-message"></div>
+
+          <form id="contact-form" onsubmit="return handleFormSubmit(event)">
+            <div class="form-group">
+              <label for="name" class="form-label">Full Name</label>
+              <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                class="form-input" 
+                placeholder="Your full name"
+                required
+              >
+              <div class="form-error" id="name-error">Name is required</div>
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="form-label">Email Address</label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="form-input" 
+                placeholder="your@company.com"
+                required
+              >
+              <div class="form-error" id="email-error">Valid email is required</div>
+            </div>
+
+            <div class="form-group">
+              <label for="phone" class="form-label">Phone Number</label>
+              <input 
+                type="tel" 
+                id="phone" 
+                name="phone" 
+                class="form-input" 
+                placeholder="(555) 123-4567"
+                required
+              >
+              <div class="form-error" id="phone-error">Phone number is required</div>
+            </div>
+
+            <button type="submit" class="form-submit-button" id="submit-button">Send Message</button>
+          </form>
+        </div>
+
+        <!-- SPACER -->
+        <div style="height: var(--spacing-2xl);"></div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ========================================================================
+    // CONFIGURATION
+    // ========================================================================
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmp0j2Nea0ldCYIDxHRiLO90xKYMZPFb4EeytBC1yEdvF2F09pp4mVmHw2t1epxVvm/exec';
+
+    // ========================================================================
+    // UPDATE CURRENT TIME
+    // ========================================================================
+    function updateCurrentTime() {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      });
+      const timeElement = document.getElementById('current-time');
+      if (timeElement) {
+        timeElement.textContent = timeString;
+      }
+    }
+
+    // Update time immediately and then every minute
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 60000);
+
+    // ========================================================================
+    // FORM SUBMISSION HANDLER
+    // ========================================================================
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      // Get form elements
+      const form = document.getElementById('contact-form');
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
+      const phoneInput = document.getElementById('phone');
+      const submitButton = document.getElementById('submit-button');
+      const formMessage = document.getElementById('form-message');
+
+      // Validate inputs
+      if (!validateForm(nameInput, emailInput, phoneInput)) {
+        return false;
+      }
+
+      // Disable submit button and show loading state
+      submitButton.disabled = true;
+      submitButton.textContent = 'Sending...';
+
+      // Get form values
+      const name = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const phone = phoneInput.value.trim();
+
+      // Build the Apps Script URL with query parameters
+      const url = SCRIPT_URL + '?' + new URLSearchParams({
+        name: name,
+        email: email,
+        phone: phone
+      });
+
+      // Send the request with no-cors mode
+      fetch(url, {
+        method: 'GET',
+        mode: 'no-cors'
+      })
+        .then(() => {
+          // Success - show success message
+          showMessage('Thanks! Your details have been submitted successfully.', 'success', formMessage);
+          
+          // Reset form
+          form.reset();
+          
+          // Reset button
+          submitButton.disabled = false;
+          submitButton.textContent = 'Send Message';
+        })
+        .catch(() => {
+          // Error - show error message
+          showMessage('Something went wrong. Please try again.', 'error', formMessage);
+          
+          // Reset button
+          submitButton.disabled = false;
+          submitButton.textContent = 'Send Message';
+        });
+
+      return false;
+    }
+
+    // ========================================================================
+    // FORM VALIDATION
+    // ========================================================================
+    function validateForm(nameInput, emailInput, phoneInput) {
+      let isValid = true;
+
+      // Validate name
+      if (!nameInput.value.trim()) {
+        showFieldError(nameInput, 'name-error', true);
+        isValid = false;
+      } else {
+        showFieldError(nameInput, 'name-error', false);
+      }
+
+      // Validate email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailInput.value.trim() || !emailRegex.test(emailInput.value.trim())) {
+        showFieldError(emailInput, 'email-error', true);
+        isValid = false;
+      } else {
+        showFieldError(emailInput, 'email-error', false);
+      }
+
+      // Validate phone
+      if (!phoneInput.value.trim()) {
+        showFieldError(phoneInput, 'phone-error', true);
+        isValid = false;
+      } else {
+        showFieldError(phoneInput, 'phone-error', false);
+      }
+
+      return isValid;
+    }
+
+    // ========================================================================
+    // SHOW/HIDE FIELD ERROR
+    // ========================================================================
+    function showFieldError(input, errorId, show) {
+      const errorElement = document.getElementById(errorId);
+      if (show) {
+        input.classList.add('error');
+        errorElement.classList.add('show');
+      } else {
+        input.classList.remove('error');
+        errorElement.classList.remove('show');
+      }
+    }
+
+    // ========================================================================
+    // SHOW MESSAGE
+    // ========================================================================
+    function showMessage(text, type, element) {
+      element.textContent = text;
+      element.className = 'form-message show ' + type;
+
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        element.classList.remove('show');
+      }, 5000);
+    }
+
+    // ========================================================================
+    // CLEAR ERROR ON INPUT FOCUS
+    // ========================================================================
+    document.getElementById('name').addEventListener('focus', function() {
+      this.classList.remove('error');
+      document.getElementById('name-error').classList.remove('show');
+    });
+
+    document.getElementById('email').addEventListener('focus', function() {
+      this.classList.remove('error');
+      document.getElementById('email-error').classList.remove('show');
+    });
+
+    document.getElementById('phone').addEventListener('focus', function() {
+      this.classList.remove('error');
+      document.getElementById('phone-error').classList.remove('show');
+    });
+
+    // ========================================================================
+    // SIDEBAR MENU ACTIVE STATE
+    // ========================================================================
+    document.querySelectorAll('.sidebar-menu-link').forEach(link => {
+      link.addEventListener('click', function() {
+        document.querySelectorAll('.sidebar-menu-link').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
